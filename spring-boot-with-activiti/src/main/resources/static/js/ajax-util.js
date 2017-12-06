@@ -43,7 +43,7 @@ function simpleSuccess(result) {
     if (result.status == web_status.NO_LOGIN) {
         alert("您还未登陆！");
         window.location.href =
-            "http://127.0.0.1:8081/login.html?backToUrl="+encodeURIComponent(btoa(window.location.href));
+            "http://127.0.0.1:8081/_csrf.ftl?backToUrl="+encodeURIComponent(btoa(window.location.href));
     }else{
         //其他错误情况，直接弹出提示框
         if(result.msg!=null){
