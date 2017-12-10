@@ -1,0 +1,24 @@
+{
+  "name": "webapp",
+  "homepage": "https://github.com/KaiFengHe/learn",
+  "authors": [
+    "417984079@qq.com <417984079@qq.com>"
+  ],
+  "description": "angular js webapp",
+  "main": "",
+  "keywords": [
+    "angularjs"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.6.7"
+  }
+}
