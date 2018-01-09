@@ -6,10 +6,12 @@ import org.apache.tomcat.jdbc.pool.DataSource;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -19,12 +21,10 @@ import redis.clients.jedis.JedisCluster;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * 库存服务Application
- */
 @SpringBootApplication
 @MapperScan("com.roncoo.eshop.inventory.mapper")
-public class EshopInventeryApplication {
+public class Application {
+
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource dataSource() {
@@ -32,11 +32,11 @@ public class EshopInventeryApplication {
     }
 
     @Bean
-    public SqlSessionFactory sessionFactoryBean() throws Exception {
+    public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource());
-        PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
-        sqlSessionFactoryBean.setMapperLocations(pathMatchingResourcePatternResolver.getResources("classpath:/mybatis/*.xml"));
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mybatis/*.xml"));
         return sqlSessionFactoryBean.getObject();
     }
 
@@ -46,23 +46,31 @@ public class EshopInventeryApplication {
     }
 
     @Bean
-    public JedisCluster jedisClusterFactory() {
-        Set<HostAndPort> hostAndPortSet = new HashSet<>();
-        hostAndPortSet.add(new HostAndPort("192.168.0.100", 7001));
-        hostAndPortSet.add(new HostAndPort("192.168.0.102", 7003));
-        hostAndPortSet.add(new HostAndPort("192.168.0.103", 7005));
-        JedisCluster jedisCluster = new JedisCluster(hostAndPortSet);
+    public JedisCluster JedisClusterFactory() {
+        Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
+        jedisClusterNodes.add(new HostAndPort("192.168.0.103", 7005));
+        jedisClusterNodes.add(new HostAndPort("192.168.0.102", 7004));
+        jedisClusterNodes.add(new HostAndPort("192.168.0.102", 7003));
+        JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes);
         return jedisCluster;
     }
 
+    /**
+     * 注册监听器
+     *
+     * @return
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Bean
     public ServletListenerRegistrationBean servletListenerRegistrationBean() {
-        ServletListenerRegistrationBean servletListenerRegistrationBean = new ServletListenerRegistrationBean();
+        ServletListenerRegistrationBean servletListenerRegistrationBean =
+                new ServletListenerRegistrationBean();
         servletListenerRegistrationBean.setListener(new InitListener());
         return servletListenerRegistrationBean;
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(EshopInventeryApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
+
 }

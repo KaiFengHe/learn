@@ -2,41 +2,87 @@ package com.roncoo.eshop.inventory.request;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * <li>文件名称: 请求内存队列</li>
- * <li>文件描述: </li>
- * <li>版权所有: 版权所有© 2005-2017</li>
- * <li>公 司: 勤智数码科技股份有限公司</li>
- * <li>内容摘要: 无</li>
- * <li>其他说明:无</li>
- * <li>完成日期： 2018/1/9/009</li>
- * <li>修改记录: 无</li>
+ * 请求内存队列
+ * @author Administrator
  *
- * @author hekf
- * @version 版本号
  */
 public class RequestQueue {
-    private List<ArrayBlockingQueue> arrayBlockingQueueList = new ArrayList<>();
 
-    public void add(ArrayBlockingQueue<Request> arrayBlockingQueue) {
-        arrayBlockingQueueList.add(arrayBlockingQueue);
-    }
-
-    private static class Singleton {
-        private static RequestQueue instance;
-
-        static {
-            instance = new RequestQueue();
-        }
-
-        public static RequestQueue getInstance() {
-            return instance;
-        }
-    }
-
-    public static RequestQueue getInstance() {
-        return Singleton.getInstance();
-    }
+	/**
+	 * 内存队列
+	 */
+	private List<ArrayBlockingQueue<Request>> queues = 
+			new ArrayList<ArrayBlockingQueue<Request>>();
+	/**
+	 * 标识位map
+	 */
+	private Map<Integer, Boolean> flagMap = new ConcurrentHashMap<Integer, Boolean>();
+	
+	/**
+	 * 单例有很多种方式去实现：我采取绝对线程安全的一种方式
+	 * 
+	 * 静态内部类的方式，去初始化单例
+	 * 
+	 * @author Administrator
+	 *
+	 */
+	private static class Singleton {
+		
+		private static RequestQueue instance;
+		
+		static {
+			instance = new RequestQueue();
+		}
+		
+		public static RequestQueue getInstance() {
+			return instance;
+		}
+		
+	}
+	
+	/**
+	 * jvm的机制去保证多线程并发安全
+	 * 
+	 * 内部类的初始化，一定只会发生一次，不管多少个线程并发去初始化
+	 * 
+	 * @return
+	 */
+	public static RequestQueue getInstance() {
+		return Singleton.getInstance();
+	}
+	
+	/**
+	 * 添加一个内存队列
+	 * @param queue
+	 */
+	public void addQueue(ArrayBlockingQueue<Request> queue) {
+		this.queues.add(queue);
+	}
+	
+	/**
+	 * 获取内存队列的数量
+	 * @return
+	 */
+	public int queueSize() {
+		return queues.size();
+	}
+	
+	/**
+	 * 获取内存队列
+	 * @param index
+	 * @return
+	 */
+	public ArrayBlockingQueue<Request> getQueue(int index) {
+		return queues.get(index);
+	}
+	
+	public Map<Integer, Boolean> getFlagMap() {
+		return flagMap;
+	}
+	
 }
