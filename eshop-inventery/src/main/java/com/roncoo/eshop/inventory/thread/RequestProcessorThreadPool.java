@@ -4,8 +4,6 @@ package com.roncoo.eshop.inventory.thread;
 import com.roncoo.eshop.inventory.request.Request;
 import com.roncoo.eshop.inventory.request.RequestQueue;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,7 +32,6 @@ public class RequestProcessorThreadPool {
             requestQueue.add(arrayBlockingQueue);
             executorService.submit(new RequestProcessorThread(arrayBlockingQueue));
         }
-        init();
     }
 
     private static class Singleton {
